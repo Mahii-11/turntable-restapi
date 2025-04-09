@@ -133,8 +133,9 @@ app.post("/api/order", async (req, res) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: email, // Customer email
-      subject: "New Order Received! 📦",
+      to: process.env.EMAIL_USER, // Admin email
+      cc: email, // Customer email
+      subject: "New Order from Bangladesh Turntable! ",
       text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrder Details: ${JSON.stringify(
         cart,
         null,
