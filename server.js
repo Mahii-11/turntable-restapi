@@ -89,8 +89,6 @@ app.get("/api/turntable", (req, res) => {
   res.status(200).json({ status: "success", data: turntable });
 });
 
-l;
-
 app.post("/api/order", async (req, res) => {
   console.log("Received Data:", req.body);
   const { address, phone, email, user, customer, cart = [] } = req.body;
@@ -135,8 +133,7 @@ app.post("/api/order", async (req, res) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Admin email
-      cc: email, // Customer email
+      to: email, // Customer email
       subject: "New Order Received! 📦",
       text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrder Details: ${JSON.stringify(
         cart,
