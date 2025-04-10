@@ -6,10 +6,7 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 50010;
 
-const allowedOrigins = [
-  "http://localhost:5174",
-  "https://bloomify-green.vercel.app",
-];
+const allowedOrigins = [" http://localhost:5173"];
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
