@@ -67,50 +67,6 @@ const turntable = [
     createdAt: "2025-04-01T12:00:00Z",
   },
   {
-    id: "1",
-    name: "Audio-Technica AT-LP120XUSB",
-    brand: "Audio-Technica",
-    price: 249.99,
-    image: "https://turntable-pi.vercel.app/images/turntable-1.jpg",
-    description:
-      "High-fidelity turntable with USB output and direct-drive mechanism.",
-    category: "Direct Drive",
-    stock: 15,
-    rating: 4.7,
-    features: [
-      "USB output",
-      "Built-in phono preamp",
-      "Adjustable tracking force",
-      "Anti-skate control",
-    ],
-    specifications: {
-      speed: ["33 1/3 RPM", "45 RPM", "78 RPM"],
-      platter: "Die-cast aluminum",
-      driveType: "Direct Drive",
-      output: ["RCA", "USB"],
-    },
-    discount: {
-      percent: 10,
-      validTill: "2025-05-15T23:59:59Z",
-    },
-    warranty: "1 year limited warranty",
-    reviews: [
-      {
-        userId: "user123",
-        comment: "Absolutely love the sound quality and build!",
-        rating: 5,
-        createdAt: "2025-04-05T14:23:00Z",
-      },
-      {
-        userId: "user789",
-        comment: "USB output was a game changer for my setup.",
-        rating: 4,
-        createdAt: "2025-03-28T10:45:00Z",
-      },
-    ],
-    createdAt: "2025-04-01T12:00:00Z",
-  },
-  {
     id: "2",
     name: "Audio-Technica AT-LP120XUSB",
     brand: "Audio-Technica",
