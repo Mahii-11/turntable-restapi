@@ -998,32 +998,24 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
-
-const generateRandomId = () => {
+// Generate a random order ID
+function generateRandomId() {
   return "ORD" + Math.random().toString(36).substring(2, 7).toUpperCase();
-};
+}
 
 let orders = [];
 
-app.get("/api/turntable", (req, res) => {
-  res.status(200).json({ status: "success", data: turntable });
-});
+// -------------------- ROUTES -------------------- //
 
+// ✅ Create New Order
 app.post("/api/order", async (req, res) => {
   console.log("Received Data:", req.body);
-  const { address, phone, email, user, customer, cart = [] } = req.body;
+  const { address, phone, customer, email, cart = [] } = req.body;
 
-  if (!cart || !Array.isArray(cart) || cart.length === 0) {
-    return res.status(400).json({
-      status: "fail",
-      message: "Cart is required and must not be empty.",
-    });
-  }
-
-  if (!address || !phone || !email || !user || !customer) {
+  if (!address || !phone || !customer || !email) {
     return res
       .status(400)
-      .json({ status: "fail", message: "All customer details are required." });
+      .json({ status: "fail", message: "Missing required fields" });
   }
 
   const orderPrice = cart.reduce(
@@ -1036,14 +1028,13 @@ app.post("/api/order", async (req, res) => {
 
   const newOrder = {
     id: generateRandomId(),
-    address: req.body.address,
-    email: req.body.email,
-    phone: req.body.phone,
-    customer: req.body.customer,
-    user: req.body.use,
-    cart: cart,
-    orderPrice: orderPrice,
+    address,
+    email,
+    phone,
+    customer,
     status: req.body.status || "pending",
+    cart,
+    orderPrice,
     estimatedDelivery: estimatedDelivery.toISOString(),
   };
 
@@ -1053,8 +1044,9 @@ app.post("/api/order", async (req, res) => {
   try {
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: email,
-      subject: "New Order from Bangladesh Turntable! ",
+      to: process.env.EMAIL_USER, // Admin email
+      cc: email, // Customer email
+      subject: "New Order Received! 📦",
       text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrder Details: ${JSON.stringify(
         cart,
         null,
@@ -1069,6 +1061,38 @@ app.post("/api/order", async (req, res) => {
   }
 });
 
+// ✅ Get All Orders
+app.get("/api/orders", (req, res) => {
+  res
+    .status(200)
+    .json({ status: "success", total: orders.length, data: orders });
+});
+
+// ✅ Get Specific Order by ID
+app.get("/api/order/:id", (req, res) => {
+  const orderId = req.params.id;
+  const order = orders.find((o) => o.id === orderId);
+  if (!order) {
+    return res
+      .status(404)
+      .json({ status: "fail", message: `Couldn't find order #${orderId}` });
+  }
+  res.status(200).json({ status: "success", data: order });
+});
+
+// ✅ Update Order by ID
+app.patch("/api/order/:id", (req, res) => {
+  const orderId = req.params.id;
+  const index = orders.findIndex((o) => o.id === orderId);
+  if (index === -1) {
+    return res.status(404).json({ status: "fail", message: "Order not found" });
+  }
+
+  orders[index] = { ...orders[index], ...req.body };
+  res.status(200).json({ status: "success", data: orders[index] });
+});
+
+// ✅ Update Order Status + Send Confirmation Email
 app.post("/update-order-status", async (req, res) => {
   const {
     orderId,
@@ -1086,7 +1110,6 @@ app.post("/update-order-status", async (req, res) => {
 
   io.emit("order-status-update", { orderId, status });
 
-  // If order is confirmed, send confirmation email
   if (status.toLowerCase() === "confirmed") {
     try {
       const mailOptions = {
@@ -1094,22 +1117,17 @@ app.post("/update-order-status", async (req, res) => {
         to: customerEmail,
         subject: "Your Order is Confirmed! 🎉",
         text: `Dear ${customerName}, 
-  
-  Great news! 🎉 Your order has been confirmed successfully and is now being prepared by our expert chefs. 🍔🍕🍟 
-  
-  🚀 Estimated Delivery Time: 30 minutes  
-  📌 Order ID: ${orderId}  
-  📍 Delivery Address: ${address}  
-  📞 Contact Number: ${phone}  
-  🛒 Order Details: ${orderDetails}  
-  
-  ⏳ Please be ready to receive your order. Kindly keep your phone nearby, and make sure your doorbell is working so that our rider can deliver your delicious meal hassle-free. 🚴‍♂️  
-  
-  Thank you for choosing **Bloomify**! 🌿 We’re committed to serving you fresh and delicious fast food right at your doorstep. If you have any questions, feel free to contact us.  
-  
-  Bon Appétit! 🍽️  
-  **Team Bloomify**  
-  `,
+
+Great news! 🎉 Your order has been confirmed and is being prepared by our expert chefs. 🍕🍔🍟
+
+🚀 Delivery Time: ~30 mins
+📌 Order ID: ${orderId}
+📍 Address: ${address}
+📞 Phone: ${phone}
+🛒 Items: ${orderDetails}
+
+Thanks for choosing Bangladesh Turntable! 🎶
+Team Turntable`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -1125,59 +1143,13 @@ app.post("/update-order-status", async (req, res) => {
   });
 });
 
-// Get specific order
-app.get("/api/order/:id", (req, res) => {
-  const order = orders.find((o) => o.id === req.params.id);
-  if (!order) {
-    return res.status(404).json({
-      status: "fail",
-      message: `Couldn't find order #${req.params.id}`,
-    });
-  }
-  res.status(200).json({ status: "success", data: order });
-});
-
-/*app.patch("/api/order/:id", (req, res) => {
-  const orderId = req.params.id;
-  const orderIndex = orders.findIndex((o) => o.id === orderId);
-
-  if (orderIndex === -1) {
-    return res.status(404).json({ status: "fail", message: "Order not found" });
-  }
-
-  orders[orderIndex] = { ...orders[orderIndex], ...req.body };
-  res.status(200).json({ status: "success", data: orders[orderIndex] });
-});*/
-
-// Update order
-app.patch("/api/order/:id", (req, res) => {
-  const index = orders.findIndex((o) => o.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ status: "fail", message: "Order not found" });
-  }
-  orders[index] = { ...orders[index], ...req.body };
-  res.status(200).json({ status: "success", data: orders[index] });
-});
-
-// Update Order by ID
-/*app.patch("/api/order/:id", (req, res) => {
-  const orderId = req.params.id;
-  const orderIndex = orders.findIndex((o) => o.id === orderId);
-
-  if (orderIndex === -1) {
-    return res.status(404).json({ status: "fail", message: "Order not found" });
-  }
-
-  orders[orderIndex] = { ...orders[orderIndex], ...req.body };
-  res.status(200).json({ status: "success", data: orders[orderIndex] });
-});
-*/
-// Delete order
+// ✅ Delete Order
 app.delete("/api/order/:id", (req, res) => {
   const index = orders.findIndex((o) => o.id === req.params.id);
   if (index === -1) {
     return res.status(404).json({ status: "fail", message: "Order not found" });
   }
+
   const deleted = orders.splice(index, 1);
   res.status(200).json({
     status: "success",
@@ -1186,14 +1158,7 @@ app.delete("/api/order/:id", (req, res) => {
   });
 });
 
-// Get all orders
-app.get("/api/orders", (req, res) => {
-  res
-    .status(200)
-    .json({ status: "success", total: orders.length, data: orders });
-});
-
-// Filter orders by status or email
+// ✅ Search Orders by status or email
 app.get("/api/orders/search", (req, res) => {
   const { status, email } = req.query;
   let filtered = orders;
@@ -1205,11 +1170,16 @@ app.get("/api/orders/search", (req, res) => {
     filtered = filtered.filter((o) => o.email === email);
   }
 
-  res
-    .status(200)
-    .json({ status: "success", result: filtered.length, data: filtered });
+  res.status(200).json({
+    status: "success",
+    result: filtered.length,
+    data: filtered,
+  });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running at: http://localhost:${PORT}`);
+// ✅ Start Server + WebSocket
+server.listen(PORT, () => {
+  console.log(`🚀 Server running at: http://localhost:${PORT}`);
 });
+
+io.on("connection", (socket) => console.log("🧃 WebSocket client connected."));
