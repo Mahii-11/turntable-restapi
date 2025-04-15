@@ -1126,18 +1126,18 @@ app.post("/update-order-status", async (req, res) => {
 });
 
 // Get specific order
-// app.get("/api/order/:id", (req, res) => {
-// const order = orders.find((o) => o.id === req.params.id);
-// if (!order) {
-// return res.status(404).json({
-// status: "fail",
-// message: `Couldn't find order #${req.params.id}`,
-// });
-// }
-// res.status(200).json({ status: "success", data: order });
-// });
+app.get("/api/order/:id", (req, res) => {
+  const order = orders.find((o) => o.id === req.params.id);
+  if (!order) {
+    return res.status(404).json({
+      status: "fail",
+      message: `Couldn't find order #${req.params.id}`,
+    });
+  }
+  res.status(200).json({ status: "success", data: order });
+});
 
-app.patch("/api/order/:id", (req, res) => {
+/*app.patch("/api/order/:id", (req, res) => {
   const orderId = req.params.id;
   const orderIndex = orders.findIndex((o) => o.id === orderId);
 
@@ -1147,20 +1147,20 @@ app.patch("/api/order/:id", (req, res) => {
 
   orders[orderIndex] = { ...orders[orderIndex], ...req.body };
   res.status(200).json({ status: "success", data: orders[orderIndex] });
-});
+});*/
 
 // Update order
-//app.patch("/api/order/:id", (req, res) => {
-//  const index = orders.findIndex((o) => o.id === req.params.id);
-//  if (index === -1) {
-//    return res.status(404).json({ status: "fail", message: "Order not found" });
-//  }
-//  orders[index] = { ...orders[index], ...req.body };
-//  res.status(200).json({ status: "success", data: orders[index] });
-//});
+app.patch("/api/order/:id", (req, res) => {
+  const index = orders.findIndex((o) => o.id === req.params.id);
+  if (index === -1) {
+    return res.status(404).json({ status: "fail", message: "Order not found" });
+  }
+  orders[index] = { ...orders[index], ...req.body };
+  res.status(200).json({ status: "success", data: orders[index] });
+});
 
 // Update Order by ID
-app.patch("/api/order/:id", (req, res) => {
+/*app.patch("/api/order/:id", (req, res) => {
   const orderId = req.params.id;
   const orderIndex = orders.findIndex((o) => o.id === orderId);
 
@@ -1171,7 +1171,7 @@ app.patch("/api/order/:id", (req, res) => {
   orders[orderIndex] = { ...orders[orderIndex], ...req.body };
   res.status(200).json({ status: "success", data: orders[orderIndex] });
 });
-
+*/
 // Delete order
 app.delete("/api/order/:id", (req, res) => {
   const index = orders.findIndex((o) => o.id === req.params.id);
