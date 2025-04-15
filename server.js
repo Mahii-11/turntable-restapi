@@ -370,6 +370,7 @@ const turntable = [
     ],
     createdAt: "2025-04-01T12:00:00Z",
   },
+
   {
     id: "9",
     name: "Audio-Technica AT-LP120XUSB",
@@ -987,6 +988,10 @@ const turntable = [
     createdAt: "2025-04-01T12:00:00Z",
   },
 ];
+
+app.get("/api/turntable", (req, res) => {
+  res.status(200).json({ status: "success", data: turntable });
+});
 
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
