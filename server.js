@@ -1150,13 +1150,26 @@ app.patch("/api/order/:id", (req, res) => {
 });
 
 // Update order
+//app.patch("/api/order/:id", (req, res) => {
+//  const index = orders.findIndex((o) => o.id === req.params.id);
+//  if (index === -1) {
+//    return res.status(404).json({ status: "fail", message: "Order not found" });
+//  }
+//  orders[index] = { ...orders[index], ...req.body };
+//  res.status(200).json({ status: "success", data: orders[index] });
+//});
+
+// Update Order by ID
 app.patch("/api/order/:id", (req, res) => {
-  const index = orders.findIndex((o) => o.id === req.params.id);
-  if (index === -1) {
+  const orderId = req.params.id;
+  const orderIndex = orders.findIndex((o) => o.id === orderId);
+
+  if (orderIndex === -1) {
     return res.status(404).json({ status: "fail", message: "Order not found" });
   }
-  orders[index] = { ...orders[index], ...req.body };
-  res.status(200).json({ status: "success", data: orders[index] });
+
+  orders[orderIndex] = { ...orders[orderIndex], ...req.body };
+  res.status(200).json({ status: "success", data: orders[orderIndex] });
 });
 
 // Delete order
