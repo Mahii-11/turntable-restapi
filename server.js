@@ -1178,8 +1178,6 @@ app.get("/api/orders/search", (req, res) => {
 });
 
 // ✅ Start Server + WebSocket
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running at: http://localhost:${PORT}`);
 });
-
-io.on("connection", (socket) => console.log("🧃 WebSocket client connected."));
