@@ -1009,13 +1009,21 @@ function generateRandomId() {
 }
 
 let orders = [];
+const PRIORITY_PRICE = 30;
 
 // -------------------- ROUTES -------------------- //
 
 // ✅ Create New Order
 app.post("/api/order", async (req, res) => {
   console.log("Received Data:", req.body);
-  const { address, phone, customer, email, cart = [] } = req.body;
+  const {
+    address,
+    phone,
+    customer,
+    email,
+    cart = [],
+    priority = false,
+  } = req.body;
 
   if (!address || !phone || !customer || !email) {
     return res
@@ -1027,6 +1035,8 @@ app.post("/api/order", async (req, res) => {
     (total, item) => total + item.unitPrice * item.quantity,
     0
   );
+
+  const priorityPrice = priority ? PRIORITY_PRICE : 0;
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setMinutes(estimatedDelivery.getMinutes() + 30);
@@ -1040,6 +1050,9 @@ app.post("/api/order", async (req, res) => {
     status: req.body.status || "pending",
     cart,
     orderPrice,
+    priority,
+    priorityPrice,
+    totalPrice: orderPrice + priorityPrice,
     estimatedDelivery: estimatedDelivery.toISOString(),
   };
 
