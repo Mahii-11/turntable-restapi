@@ -72,6 +72,7 @@ const turntable = [
       "High-fidelity turntable with USB output and direct-drive mechanism.",
     category: "Direct Drive",
     stock: 15,
+    soldOut: true,
     rating: 4.7,
     features: [
       "USB output",
