@@ -1033,7 +1033,7 @@ app.post("/api/order", async (req, res) => {
   }
 
   const orderPrice = cart.reduce(
-    (total, item) => total + item.unitPrice * item.quantity,
+    (total, item) => total + item.price * item.quantity,
     0
   );
 
