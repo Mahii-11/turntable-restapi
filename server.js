@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
+const mongoose = require("mongoose"); // Import mongoose
 require("dotenv").config();
 
 const app = express();
@@ -9,6 +10,36 @@ const PORT = process.env.PORT || 50010;
 app.use(cors());
 app.use(express.json());
 
+// MongoDB connection
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1);
+  });
+
+// MongoDB Schema for Orders
+const orderSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  address: { type: String, required: true },
+  phone: { type: String, required: true },
+  customer: { type: String, required: true },
+  email: { type: String, required: true },
+  status: { type: String, default: "pending" },
+  cart: { type: Array, required: true },
+  orderPrice: { type: Number, required: true },
+  priority: { type: Boolean, default: false },
+  priorityPrice: { type: Number, default: 0 },
+  totalPrice: { type: Number, required: true },
+  estimatedDelivery: { type: String, required: true },
+});
+
+const Order = mongoose.model("Order", orderSchema);
+
 // Check Email Credentials
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   console.error(
@@ -16,7 +47,8 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   );
   process.exit(1);
 }
-// Dummy product
+
+// Dummy product (could be fetched from MongoDB in the future)
 const turntable = [
   {
     id: "1",
@@ -1004,13 +1036,11 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
 });
+
 // Generate a random order ID
 function generateRandomId() {
   return "ORD" + Math.random().toString(36).substring(2, 7).toUpperCase();
 }
-
-let orders = [];
-const PRIORITY_PRICE = 30;
 
 // -------------------- ROUTES -------------------- //
 
@@ -1037,12 +1067,12 @@ app.post("/api/order", async (req, res) => {
     0
   );
 
-  const priorityPrice = priority ? PRIORITY_PRICE : 0;
+  const priorityPrice = priority ? 30 : 0;
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setMinutes(estimatedDelivery.getMinutes() + 30);
 
-  const newOrder = {
+  const newOrder = new Order({
     id: generateRandomId(),
     address,
     email,
@@ -1055,12 +1085,12 @@ app.post("/api/order", async (req, res) => {
     priorityPrice,
     totalPrice: orderPrice + priorityPrice,
     estimatedDelivery: estimatedDelivery.toISOString(),
-  };
-
-  orders.push(newOrder);
-  res.status(201).json({ status: "success", data: newOrder });
+  });
 
   try {
+    await newOrder.save(); // Save order to MongoDB
+    res.status(201).json({ status: "success", data: newOrder });
+
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER, // Admin email
@@ -1076,124 +1106,55 @@ app.post("/api/order", async (req, res) => {
     await transporter.sendMail(mailOptions);
     console.log(`📩 Order notification email sent to Admin & ${email}`);
   } catch (error) {
-    console.error("❌ Order email sending error:", error);
+    console.error("❌ Error saving order to database:", error);
+    res.status(500).json({ status: "fail", message: "Error saving order" });
   }
 });
 
 // ✅ Get All Orders
-app.get("/api/orders", (req, res) => {
-  res
-    .status(200)
-    .json({ status: "success", total: orders.length, data: orders });
+app.get("/api/orders", async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res
+      .status(200)
+      .json({ status: "success", total: orders.length, data: orders });
+  } catch (error) {
+    res.status(500).json({ status: "fail", message: "Error fetching orders" });
+  }
 });
 
 // ✅ Get Specific Order by ID
-app.get("/api/order/:id", (req, res) => {
+app.get("/api/order/:id", async (req, res) => {
   const orderId = req.params.id;
-  const order = orders.find((o) => o.id === orderId);
-  if (!order) {
-    return res
-      .status(404)
-      .json({ status: "fail", message: `Couldn't find order #${orderId}` });
+  try {
+    const order = await Order.findOne({ id: orderId });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: `Couldn't find order #${orderId}` });
+    }
+    res.status(200).json({ status: "success", data: order });
+  } catch (error) {
+    res.status(500).json({ status: "fail", message: "Error fetching order" });
   }
-  res.status(200).json({ status: "success", data: order });
 });
 
 // ✅ Update Order by ID
-app.patch("/api/order/:id", (req, res) => {
+app.patch("/api/order/:id", async (req, res) => {
   const orderId = req.params.id;
-  const index = orders.findIndex((o) => o.id === orderId);
-  if (index === -1) {
-    return res.status(404).json({ status: "fail", message: "Order not found" });
-  }
-
-  orders[index] = { ...orders[index], ...req.body };
-  res.status(200).json({ status: "success", data: orders[index] });
-});
-
-// ✅ Update Order Status + Send Confirmation Email
-app.post("/update-order-status", async (req, res) => {
-  const {
-    orderId,
-    status,
-    customerEmail,
-    customerName,
-    phone,
-    address,
-    orderDetails,
-  } = req.body;
-
-  if (!orderId || !status) {
-    return res.status(400).json({ success: false, message: "Missing data!" });
-  }
-
-  io.emit("order-status-update", { orderId, status });
-
-  if (status.toLowerCase() === "confirmed") {
-    try {
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: customerEmail,
-        subject: "Your Order is Confirmed! 🎉",
-        text: `Dear ${customerName}, 
-
-Great news! 🎉 Your order has been confirmed and is being prepared by our expert chefs. 🍕🍔🍟
-
-🚀 Delivery Time: ~30 mins
-📌 Order ID: ${orderId}
-📍 Address: ${address}
-📞 Phone: ${phone}
-🛒 Items: ${orderDetails}
-
-Thanks for choosing Bangladesh Turntable! 🎶
-Team Turntable`,
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log(`📩 Confirmation email sent to ${customerEmail}`);
-    } catch (error) {
-      console.error("❌ Confirmation email error:", error);
+  try {
+    const order = await Order.findOneAndUpdate({ id: orderId }, req.body, {
+      new: true,
+    });
+    if (!order) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Order not found" });
     }
+    res.status(200).json({ status: "success", data: order });
+  } catch (error) {
+    res.status(500).json({ status: "fail", message: "Error updating order" });
   }
-
-  res.status(200).json({
-    success: true,
-    message: `Order ${orderId} updated to ${status}`,
-  });
-});
-
-// ✅ Delete Order
-app.delete("/api/order/:id", (req, res) => {
-  const index = orders.findIndex((o) => o.id === req.params.id);
-  if (index === -1) {
-    return res.status(404).json({ status: "fail", message: "Order not found" });
-  }
-
-  const deleted = orders.splice(index, 1);
-  res.status(200).json({
-    status: "success",
-    message: `Order #${req.params.id} deleted`,
-    data: deleted,
-  });
-});
-
-// ✅ Search Orders by status or email
-app.get("/api/orders/search", (req, res) => {
-  const { status, email } = req.query;
-  let filtered = orders;
-
-  if (status) {
-    filtered = filtered.filter((o) => o.status === status);
-  }
-  if (email) {
-    filtered = filtered.filter((o) => o.email === email);
-  }
-
-  res.status(200).json({
-    status: "success",
-    result: filtered.length,
-    data: filtered,
-  });
 });
 
 // ✅ Start Server + WebSocket
