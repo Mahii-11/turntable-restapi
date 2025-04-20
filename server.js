@@ -10,20 +10,18 @@ const PORT = process.env.PORT || 50010;
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection
-console.log("MONGO_URI from .env:", process.env.MONGO_URI);
+// ✅ Mongoose Connection
+const uri = process.env.MONGO_URI;
+
 mongoose
-  .connect(process.env.MONGO_URI, {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
-  })
-  .then(() => console.log("✅ MongoDB connected"))
+  .connect(uri)
+  .then(() => console.log("✅ Mongoose connected to MongoDB."))
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
+    console.error("❌ Mongoose connection error:", err);
     process.exit(1);
   });
 
-// MongoDB Schema for Orders
+// ✅ Then your Order Schema...
 const orderSchema = new mongoose.Schema({
   id: { type: String, required: true },
   address: { type: String, required: true },
