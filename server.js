@@ -1095,7 +1095,7 @@ app.post("/api/order", async (req, res) => {
       to: process.env.EMAIL_USER, // Admin email
       cc: email, // Customer email
       subject: "New Order Received! 📦",
-      text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrderId: ${id}\nCheck the dashboard for more details.`,
+      text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrder ID: ${newOrder.id}\nCheck the dashboard for more details.`,
     };
 
     await transporter.sendMail(mailOptions);
