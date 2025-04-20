@@ -1110,6 +1110,61 @@ app.post("/api/order", async (req, res) => {
   }
 });
 
+// Update Order Status & Send Confirmation Email
+app.post("/update-order-status", async (req, res) => {
+  const {
+    orderId,
+    status,
+    customerEmail,
+    customerName,
+    phone,
+    address,
+    orderDetails,
+  } = req.body;
+
+  if (!orderId || !status) {
+    return res.status(400).json({ success: false, message: "Missing data!" });
+  }
+
+  io.emit("order-status-update", { orderId, status });
+
+  // If order is confirmed, send confirmation email
+  if (status.toLowerCase() === "confirmed") {
+    try {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: customerEmail,
+        subject: "Your Order is Confirmed! 🎉",
+        text: `Dear ${customerName}, 
+
+Great news! 🎉 Your order has been confirmed successfully  
+
+🚀 Estimated Delivery Time: 30 minutes  
+📌 Order ID: ${orderId}  
+📍 Delivery Address: ${address}  
+📞 Contact Number: ${phone}  
+🛒 Order Details: ${orderDetails}  
+
+⏳ Please be ready to receive your order. Kindly keep your phone nearby, and make sure your doorbell is working so that our rider can deliver. 🚴‍♂️  
+
+Thank you for choosing **Turntable-BD**! And... If you have any questions, feel free to contact us.  
+
+`,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`📩 Confirmation email sent to ${customerEmail}`);
+    } catch (error) {
+      console.error("❌ Confirmation email error:", error);
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Order ${orderId} updated to ${status}`,
+  });
+});
+
 // ✅ Get All Orders
 app.get("/api/orders", async (req, res) => {
   try {
