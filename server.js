@@ -48,6 +48,7 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
 }
 
 // Dummy product (could be fetched from MongoDB in the future)
+
 const turntable = [
   {
     id: "1",
@@ -1034,6 +1035,43 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+});
+
+// ✅ Contact Message Route
+app.post("/api/contact", async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res
+      .status(400)
+      .json({ status: "fail", message: "All fields are required." });
+  }
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    replyTo: email,
+    subject: `📬 New Contact Form Submission: ${subject}`,
+    text: `You have a new message from the contact form:
+
+👤 Name: ${name}
+📧 Email: ${email}
+📝 Subject: ${subject}
+💬 Message:
+${message}
+`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`📩 Contact message sent from ${email}`);
+    res.status(200).json({ status: "success", message: "Message sent!" });
+  } catch (error) {
+    console.error("❌ Failed to send contact message:", error);
+    res
+      .status(500)
+      .json({ status: "fail", message: "Failed to send message." });
+  }
 });
 
 // Generate a random order ID
