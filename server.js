@@ -1022,7 +1022,7 @@ const turntable = [
   },
 ];
 
-const turntablePart = [
+const turntablemenu = [
   {
     id: "1",
     name: "Hinge",
@@ -1082,12 +1082,12 @@ const turntablePart = [
   },
 ];
 
-app.get("api/turntablePart", (req, res) => {
-  res.status(200).json({ status: "success", data: turntablePart });
-});
-
 app.get("/api/turntable", (req, res) => {
   res.status(200).json({ status: "success", data: turntable });
+});
+
+app.get("/api/turntablemenu", (req, res) => {
+  res.status(200).json({ status: "success", data: turntablemenu });
 });
 
 // Nodemailer Setup
