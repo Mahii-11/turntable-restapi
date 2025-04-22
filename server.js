@@ -1022,6 +1022,70 @@ const turntable = [
   },
 ];
 
+const turntablePart = [
+  {
+    id: "1",
+    name: "Hinge",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
+    price: 3000,
+    description: "The hinge lets the dust cover open smoothly and stay secure.",
+    soldOut: false,
+  },
+
+  {
+    id: "2",
+    name: "Turntable Belt",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-2.jpg",
+    price: 1000,
+    description:
+      "The belt spins the platter with precision for smooth, consistent playback.",
+    soldOut: false,
+  },
+
+  {
+    id: "3",
+    name: "Audio Technica Stylus Pin",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-3.jpg",
+    price: 3500,
+    description: "Spherical Diamond Stylus",
+    soldOut: false,
+  },
+
+  {
+    id: "4",
+    name: "Brushless DC Motor",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-4.jpg",
+    price: 1200,
+    description:
+      "Ensures quiet, efficient, and stable rotation without wear or friction.",
+    soldOut: false,
+  },
+
+  {
+    id: "5",
+    name: "Tonearm Complite setup ",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
+    price: 8000,
+    description:
+      "Delivers precise tracking and balanced playback for flawless audio fidelity.",
+    soldOut: false,
+  },
+
+  {
+    id: "6",
+    name: " Xpression",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
+    price: 30000,
+    description:
+      "Ortofon Xpression Headshell with Cartridge and Stylus complete set. And Made in Denmark",
+    soldOut: false,
+  },
+];
+
+app.get("api/turntablePart", (req, res) => {
+  res.status(200).json({ status: "success", data: turntablePart });
+});
+
 app.get("/api/turntable", (req, res) => {
   res.status(200).json({ status: "success", data: turntable });
 });
