@@ -1030,6 +1030,7 @@ const turntablemenu = [
     price: 3000,
     description: "The hinge lets the dust cover open smoothly and stay secure.",
     soldOut: false,
+    stock: 15,
   },
 
   {
@@ -1040,6 +1041,7 @@ const turntablemenu = [
     description:
       "The belt spins the platter with precision for smooth, consistent playback.",
     soldOut: false,
+    stock: 15,
   },
 
   {
@@ -1049,6 +1051,7 @@ const turntablemenu = [
     price: 3500,
     description: "Spherical Diamond Stylus",
     soldOut: false,
+    stock: 15,
   },
 
   {
@@ -1059,26 +1062,29 @@ const turntablemenu = [
     description:
       "Ensures quiet, efficient, and stable rotation without wear or friction.",
     soldOut: false,
+    stock: 15,
   },
 
   {
     id: "5",
     name: "Tonearm Complite setup ",
-    image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-5.jpg",
     price: 8000,
     description:
       "Delivers precise tracking and balanced playback for flawless audio fidelity.",
     soldOut: false,
+    stock: 15,
   },
 
   {
     id: "6",
     name: " Xpression",
-    image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-6.jpg",
     price: 30000,
     description:
       "Ortofon Xpression Headshell with Cartridge and Stylus complete set. And Made in Denmark",
-    soldOut: false,
+    soldOut: true,
+    stock: 15,
   },
 ];
 
