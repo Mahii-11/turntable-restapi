@@ -1024,7 +1024,7 @@ const turntable = [
 
 const turntablemenu = [
   {
-    id: "1",
+    id: "31",
     name: "Hinge",
     image: "https://turntable-pi.vercel.app/images/turntable-part-1.jpg",
     price: 3000,
@@ -1034,7 +1034,7 @@ const turntablemenu = [
   },
 
   {
-    id: "2",
+    id: "32",
     name: "Turntable Belt",
     image: "https://turntable-pi.vercel.app/images/turntable-part-2.jpg",
     price: 1000,
@@ -1045,7 +1045,7 @@ const turntablemenu = [
   },
 
   {
-    id: "3",
+    id: "33",
     name: "Audio Technica Stylus Pin",
     image: "https://turntable-pi.vercel.app/images/turntable-part-3.jpg",
     price: 3500,
@@ -1055,7 +1055,7 @@ const turntablemenu = [
   },
 
   {
-    id: "4",
+    id: "34",
     name: "Brushless DC Motor",
     image: "https://turntable-pi.vercel.app/images/turntable-part-4.jpg",
     price: 1200,
@@ -1066,7 +1066,7 @@ const turntablemenu = [
   },
 
   {
-    id: "5",
+    id: "35",
     name: "Tonearm Complite setup ",
     image: "https://turntable-pi.vercel.app/images/turntable-part-5.jpg",
     price: 8000,
@@ -1077,7 +1077,7 @@ const turntablemenu = [
   },
 
   {
-    id: "6",
+    id: "36",
     name: " Xpression",
     image: "https://turntable-pi.vercel.app/images/turntable-part-6.jpg",
     price: 30000,
