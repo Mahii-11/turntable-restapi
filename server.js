@@ -1174,6 +1174,26 @@ const turntablemenu = [
     soldOut: true,
     stock: 15,
   },
+  {
+    id: "37",
+    name: " Xpression",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-6.jpg",
+    price: 30000,
+    description:
+      "Ortofon Xpression Headshell with Cartridge and Stylus complete set. And Made in Denmark",
+    soldOut: true,
+    stock: 15,
+  },
+  {
+    id: "38",
+    name: " Xpression",
+    image: "https://turntable-pi.vercel.app/images/turntable-part-6.jpg",
+    price: 30000,
+    description:
+      "Ortofon Xpression Headshell with Cartridge and Stylus complete set. And Made in Denmark",
+    soldOut: true,
+    stock: 15,
+  },
 ];
 
 app.get("/api/turntable", (req, res) => {
