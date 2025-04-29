@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet"); // Added for security
-const morgan = require("morgan"); // Added for logging
+const helmet = require("helmet");
+const morgan = require("morgan");
 const nodemailer = require("nodemailer");
 const mongoose = require("mongoose");
 
@@ -12,10 +12,9 @@ const PORT = process.env.PORT || 50010;
 
 app.use(cors());
 app.use(express.json());
-app.use(helmet()); // Added to set HTTP headers for security
-app.use(morgan("dev")); // Added for logging requests
+app.use(helmet());
+app.use(morgan("dev"));
 
-// ✅ Mongoose Connection
 const uri = process.env.MONGO_URI;
 
 mongoose
@@ -26,7 +25,6 @@ mongoose
     process.exit(1);
   });
 
-// ✅ Then your Order Schema...
 const orderSchema = new mongoose.Schema({
   id: { type: String, required: true },
   address: { type: String, required: true },
@@ -44,28 +42,14 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model("Order", orderSchema);
 
-// Dummy product (could be fetched from MongoDB in the future)
-
 const turntableRoutes = require("./routes/turntableRoutes");
 const turntableMenuRoutes = require("./routes/turntableMenuRoutes");
 const authRoutes = require("./routes/authRoutes");
 
-// Routes
 app.use("/api/turntable", turntableRoutes);
 app.use("/api/turntablemenu", turntableMenuRoutes);
 app.use("/api/auth", authRoutes);
 
-// Root Route
-app.get("/", (req, res) => {
-  res.send("🎵 Turntable API is running...");
-});
-
-// 404 Handler for unknown routes
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
-
-// Check Email Credentials
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   console.error(
     "⚠️ Missing EMAIL_USER or EMAIL_PASS in environment variables!"
@@ -73,7 +57,6 @@ if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
   process.exit(1);
 }
 
-// Nodemailer Setup
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -84,7 +67,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✅ Contact Message Route
 app.post("/api/contact", async (req, res) => {
   const { name, email, subject, message } = req.body;
 
@@ -121,14 +103,12 @@ ${message}
   }
 });
 
-// Generate a random order ID
 function generateRandomId() {
   return "ORD" + Math.random().toString(36).substring(2, 7).toUpperCase();
 }
 
 // -------------------- ROUTES -------------------- //
 
-// ✅ Create New Order
 app.post("/api/order", async (req, res) => {
   console.log("Received Data:", req.body);
   const {
@@ -172,13 +152,13 @@ app.post("/api/order", async (req, res) => {
   });
 
   try {
-    await newOrder.save(); // Save order to MongoDB
+    await newOrder.save();
     res.status(201).json({ status: "success", data: newOrder });
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Admin email
-      cc: email, // Customer email
+      to: process.env.EMAIL_USER,
+      cc: email,
       subject: "New Order Received! 📦",
       text: `New order received!\n\nCustomer: ${customer}\nEmail: ${email}\nPhone: ${phone}\nAddress: ${address}\nTotal Price: ${orderPrice}\nOrder ID: ${newOrder.id}\nCheck the dashboard for more details.`,
     };
@@ -191,7 +171,6 @@ app.post("/api/order", async (req, res) => {
   }
 });
 
-// Update Order Status & Send Confirmation Email
 app.post("/update-order-status", async (req, res) => {
   const {
     orderId,
@@ -209,7 +188,6 @@ app.post("/update-order-status", async (req, res) => {
 
   io.emit("order-status-update", { orderId, status });
 
-  // If order is confirmed, send confirmation email
   if (status.toLowerCase() === "confirmed") {
     try {
       const mailOptions = {
@@ -292,7 +270,10 @@ app.patch("/api/order/:id", async (req, res) => {
   }
 });
 
-// ✅ Start Server + WebSocket
 app.listen(PORT, () => {
   console.log(`🚀 Server running at: http://localhost:${PORT}`);
 });
+
+//app.get("/", (req, res) => {
+// res.send("🎵 Turntable API is running...");
+//});
