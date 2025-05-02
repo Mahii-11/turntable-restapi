@@ -21,15 +21,15 @@ const turntableSchema = new mongoose.Schema({
     validTill: Date,
   },
   warranty: { type: String, default: "1 year limited warranty" },
-  reviews: [
+  /* reviews: [
     {
       userId: String,
       comment: String,
       rating: Number,
       createdAt: { type: Date, default: Date.now },
     },
-  ],
-  createdAt: { type: Date, default: Date.now },
+  ],*/
+  // createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("Turntable", turntableSchema);
