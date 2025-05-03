@@ -9,6 +9,7 @@ const turntableSchema = new mongoose.Schema({
   category: { type: String, required: true },
   stock: { type: Number, required: true },
   rating: { type: Number, default: 0 },
+  soldOut: { type: Boolean, default: false },
   features: [String],
   specifications: {
     speed: [String],
