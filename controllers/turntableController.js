@@ -1,5 +1,5 @@
-const Turntable = require("../models/Turntable");
-
+//const Turntable = require("../models/Turntable");
+/*
 // Create a new turntable
 exports.createTurntable = async (req, res) => {
   try {
@@ -16,6 +16,84 @@ exports.getAllTurntables = async (req, res) => {
   try {
     const turntables = await Turntable.find();
     res.status(200).json(turntables);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Update a turntable by ID
+exports.updateTurntable = async (req, res) => {
+  try {
+    const updatedTurntable = await Turntable.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    res.status(200).json(updatedTurntable);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Delete a turntable by ID
+exports.deleteTurntable = async (req, res) => {
+  try {
+    await Turntable.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Turntable deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};  */
+
+const Turntable = require("../models/Turntable");
+
+// Create a new turntable
+exports.createTurntable = async (req, res) => {
+  try {
+    const turntable = new Turntable(req.body);
+    await turntable.save();
+    res.status(201).json(turntable);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Get all turntables (Optimized with Pagination)
+// Get all turntables (Optimized with Pagination)
+exports.getAllTurntables = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalItems = await Turntable.countDocuments();
+
+    const turntables = await Turntable.find()
+      .skip(skip)
+      .limit(limit)
+      .select(
+        "name brand price image category rating discount soldOut createdAt"
+      )
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      items: turntables,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / limit),
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// Get a single turntable by ID (for detail page)
+exports.getSingleTurntable = async (req, res) => {
+  try {
+    const turntable = await Turntable.findById(req.params.id);
+    if (!turntable) {
+      return res.status(404).json({ message: "Turntable not found" });
+    }
+    res.status(200).json(turntable);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
