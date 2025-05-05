@@ -33,8 +33,4 @@ const turntableSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-turntableSchema.index({ name: 1 });
-turntableSchema.index({ brand: 1 });
-turntableSchema.index({ price: 1 });
-
 module.exports = mongoose.model("Turntable", turntableSchema);
