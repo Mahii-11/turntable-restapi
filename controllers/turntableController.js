@@ -1,6 +1,5 @@
 const Turntable = require("../models/Turntable");
 
-// Create a new turntable
 exports.createTurntable = async (req, res) => {
   try {
     const turntable = new Turntable(req.body);
@@ -11,7 +10,6 @@ exports.createTurntable = async (req, res) => {
   }
 };
 
-// Get all turntables
 exports.getAllTurntables = async (req, res) => {
   try {
     const turntables = await Turntable.find();
@@ -21,7 +19,6 @@ exports.getAllTurntables = async (req, res) => {
   }
 };
 
-// Update a turntable by ID
 exports.updateTurntable = async (req, res) => {
   try {
     const updatedTurntable = await Turntable.findByIdAndUpdate(
@@ -35,7 +32,6 @@ exports.updateTurntable = async (req, res) => {
   }
 };
 
-// Delete a turntable by ID
 exports.deleteTurntable = async (req, res) => {
   try {
     await Turntable.findByIdAndDelete(req.params.id);
