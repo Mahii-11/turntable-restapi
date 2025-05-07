@@ -19,6 +19,18 @@ exports.getAllTurntables = async (req, res) => {
   }
 };
 
+exports.getTurntableById = async (req, res) => {
+  try {
+    const turntable = await Turntable.findById(req.params.id);
+    if (!turntable) {
+      return res.status(404).json({ error: "Turntable not found" });
+    }
+    res.status(200).json(turntable);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 exports.updateTurntable = async (req, res) => {
   try {
     const updatedTurntable = await Turntable.findByIdAndUpdate(
