@@ -13,7 +13,7 @@ exports.createPart = async (req, res) => {
 
 exports.getTurntablePartsById = async (req, res) => {
   try {
-    const turntable = await Turntable.findById(req.params.id);
+    const turntable = await TurntableMenu.findById(req.params.id);
     if (!turntable) {
       return res.status(404).json({ error: "Turntable not found" });
     }
